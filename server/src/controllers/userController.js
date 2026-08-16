@@ -55,6 +55,21 @@ export const myAnalytics = asyncHandler(async (req, res) => {
   });
 });
 
+/* Request contributor access (to add placement experiences). */
+export const requestAccess = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (user.canContribute || ['faculty', 'coordinator', 'admin'].includes(user.role)) {
+    return ok(res, { user: user.toPublicJSON() }, 'You already have contributor access');
+  }
+  user.accessRequest = {
+    status: 'pending',
+    message: (req.body.message || '').slice(0, 500),
+    requestedAt: new Date(),
+  };
+  await user.save();
+  ok(res, { user: user.toPublicJSON() }, 'Access request submitted. An admin will review it.');
+});
+
 /* Report inappropriate content. */
 export const report = asyncHandler(async (req, res) => {
   const { targetType, blog, comment, reason } = req.body;

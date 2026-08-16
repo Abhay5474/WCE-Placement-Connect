@@ -46,15 +46,15 @@ let token;
 let slug;
 
 describe('Auth', () => {
-  test('rejects non-college email', async () => {
+  test('registration is open to any email domain', async () => {
     if (!dbAvailable) return;
     const res = await agent().post('/api/v1/auth/register').send({
-      name: 'Bad', email: 'bad@gmail.com', password: 'Password123',
+      name: 'Any User', email: 'anyone@gmail.com', password: 'Password123',
     });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(201);
   });
 
-  test('registers a college user and returns a token', async () => {
+  test('registers a user and returns a token', async () => {
     if (!dbAvailable) return;
     const res = await agent().post('/api/v1/auth/register').send({
       name: 'Test Student', email: 'test.student@walchandcollege.edu.in', password: 'Password123', department: 'CSE', year: 4,
@@ -62,6 +62,24 @@ describe('Auth', () => {
     expect(res.status).toBe(201);
     expect(res.body.data.accessToken).toBeTruthy();
     token = res.body.data.accessToken;
+  });
+});
+
+describe('Contributor access gating', () => {
+  test('a new user cannot add an experience without access', async () => {
+    if (!dbAvailable) return;
+    const res = await agent()
+      .post('/api/v1/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Blocked experience', content: 'Some content here for the blocked test.', type: 'general' });
+    expect(res.status).toBe(403);
+  });
+
+  test('admin grants contributor access', async () => {
+    if (!dbAvailable) return;
+    const { User } = await import('../src/models/User.js');
+    // Simulate admin approval directly on the model (endpoint is admin-only).
+    await User.updateOne({ email: 'test.student@walchandcollege.edu.in' }, { canContribute: true });
   });
 });
 

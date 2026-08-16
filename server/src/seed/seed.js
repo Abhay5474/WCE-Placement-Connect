@@ -50,7 +50,7 @@ async function run() {
 
   const domain = env.collegeEmailDomain;
   const mk = async (name, email, role) => {
-    const u = new User({ name, email: `${email}@${domain}`, role, isEmailVerified: true, isDemo: true, department: 'CSE', year: 4, graduationYear: 2026 });
+    const u = new User({ name, email: `${email}@${domain}`, role, isEmailVerified: true, isDemo: true, canContribute: true, department: 'CSE', year: 4, graduationYear: 2026 });
     await u.setPassword('Password123');
     return u.save();
   };

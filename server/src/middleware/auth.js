@@ -39,3 +39,14 @@ export const requireRole = (...roles) => (req, res, next) => {
   if (!roles.includes(req.user.role)) return next(ApiError.forbidden('Insufficient permissions'));
   next();
 };
+
+/* Contributor gate. Anyone may READ placement content without an account, but
+   ADDING an experience requires admin-granted access. Elevated roles are exempt. */
+const ELEVATED = ['faculty', 'coordinator', 'admin'];
+export const requireContributor = (req, res, next) => {
+  if (!req.user) return next(ApiError.unauthorized());
+  if (req.user.canContribute || ELEVATED.includes(req.user.role)) return next();
+  return next(
+    ApiError.forbidden('Contributor access is required to add experiences. Please request access from an admin.')
+  );
+};

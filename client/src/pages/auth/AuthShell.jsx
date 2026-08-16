@@ -16,7 +16,9 @@ export default function AuthShell({ title, subtitle, children }) {
           <li>✓ Semantic search &amp; a grounded AI placement assistant</li>
           <li>✓ Company knowledge base &amp; interview questions</li>
         </ul>
-        <p className="mt-6 text-xs text-slate-400">Restricted to @{config.collegeEmailDomain} accounts.</p>
+        <p className="mt-6 text-xs text-slate-400">
+          Anyone can join and read experiences. Adding your own experience requires admin-granted access.
+        </p>
       </div>
       <div className="card p-6">
         <h1 className="text-xl font-bold text-slate-900">{title}</h1>

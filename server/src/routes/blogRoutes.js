@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as ctrl from '../controllers/blogController.js';
-import { requireAuth, optionalAuth, requireRole } from '../middleware/auth.js';
+import { requireAuth, optionalAuth, requireRole, requireContributor } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import * as v from '../validators/blogValidators.js';
 import { ROLES } from '../config/constants.js';
@@ -9,12 +9,12 @@ const router = Router();
 
 router.get('/', optionalAuth, ctrl.list);
 router.get('/mine', requireAuth, ctrl.myBlogs);
-router.post('/', requireAuth, validate(v.createBlogSchema), ctrl.create);
+router.post('/', requireAuth, requireContributor, validate(v.createBlogSchema), ctrl.create);
 
 router.get('/:slug/related', ctrl.related);
 router.get('/:slug', optionalAuth, ctrl.getBySlug);
 
-router.patch('/:id', requireAuth, validate(v.updateBlogSchema), ctrl.update);
+router.patch('/:id', requireAuth, requireContributor, validate(v.updateBlogSchema), ctrl.update);
 router.delete('/:id', requireAuth, validate(v.idParam), ctrl.remove);
 
 // Verification / highlight — faculty, coordinator, admin.

@@ -9,6 +9,9 @@ import { logger } from '../utils/logger.js';
 const MAX_REFRESH_TOKENS = 5;
 
 function assertCollegeEmail(email) {
+  // Domain restriction is OFF by default — anyone can register to read/contribute.
+  // Enable it only if RESTRICT_EMAIL_DOMAIN=true is set in the environment.
+  if (!env.restrictEmailDomain) return;
   const domain = email.split('@')[1]?.toLowerCase();
   if (domain !== env.collegeEmailDomain) {
     throw ApiError.badRequest(

@@ -16,6 +16,9 @@ export const env = {
   collegeEmailDomain: (process.env.COLLEGE_EMAIL_DOMAIN || 'walchandcollege.edu.in').toLowerCase(),
   institutionName: process.env.INSTITUTION_NAME || 'Walchand College of Engineering',
   requireEmailVerification: bool(process.env.REQUIRE_EMAIL_VERIFICATION, false),
+  // When false (default) any email domain may register. Reading is public;
+  // contributing placement experiences still requires admin-granted access.
+  restrictEmailDomain: bool(process.env.RESTRICT_EMAIL_DOMAIN, false),
 
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET || 'dev_access_secret',

@@ -8,6 +8,7 @@ const router = Router();
 
 router.get('/me/analytics', requireAuth, ctrl.myAnalytics);
 router.patch('/me', requireAuth, ctrl.updateMe);
+router.post('/request-access', requireAuth, ctrl.requestAccess);
 router.post(
   '/reports',
   requireAuth,

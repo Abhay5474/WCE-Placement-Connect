@@ -31,6 +31,17 @@ const userSchema = new Schema(
     // Refresh token rotation — store hashes of active tokens.
     refreshTokenHashes: { type: [String], select: false, default: [] },
 
+    // Contributing (adding placement experiences) requires admin-granted access.
+    // Reading is fully public and needs no account at all.
+    canContribute: { type: Boolean, default: false },
+    accessRequest: {
+      status: { type: String, enum: ['none', 'pending', 'approved', 'rejected'], default: 'none' },
+      message: { type: String, default: '' },
+      requestedAt: { type: Date },
+      decidedAt: { type: Date },
+      decidedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    },
+
     isActive: { type: Boolean, default: true },
     isDemo: { type: Boolean, default: false }, // clearly mark demo/seed accounts
     lastLoginAt: { type: Date },
@@ -83,6 +94,9 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     skills: this.skills,
     isEmailVerified: this.isEmailVerified,
     isDemo: this.isDemo,
+    // Elevated roles can always contribute; students need admin approval.
+    canContribute: this.canContribute || ['faculty', 'coordinator', 'admin'].includes(this.role),
+    accessRequestStatus: this.accessRequest?.status || 'none',
     createdAt: this.createdAt,
   };
 };

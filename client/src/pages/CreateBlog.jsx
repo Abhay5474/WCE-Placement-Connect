@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, errMessage } from '../lib/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import { AIBadge, ErrorNote } from '../components/ui.jsx';
+import RequestAccess from '../components/RequestAccess.jsx';
 
 const PLACEMENT_TEMPLATE = `<h2>Company</h2><p></p>
 <h2>Job Role</h2><p></p>
@@ -23,7 +25,11 @@ const CATEGORIES = ['Placement Experience', 'Internship Experience', 'Interview 
 export default function CreateBlog() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useAuth();
   const editing = !!id;
+
+  // Reading is public, but adding/editing experiences requires admin-granted access.
+  if (user && !user.canContribute) return <RequestAccess />;
 
   const [form, setForm] = useState({
     title: '', content: '', type: 'placement', isAnonymous: false,

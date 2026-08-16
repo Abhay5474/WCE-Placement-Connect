@@ -8,7 +8,9 @@ WCEConnect AI turns scattered student placement experiences into a **structured,
 
 ## ✨ Features
 
-- **College-email auth** with configurable domain (`COLLEGE_EMAIL_DOMAIN`), email verification, JWT access + refresh tokens, forgot/reset password.
+- **Open, public reading** — anyone can browse placement experiences, companies and questions **without an account**.
+- **Open registration** with email verification, JWT access + refresh tokens, forgot/reset password. Domain restriction is optional (`RESTRICT_EMAIL_DOMAIN`, off by default).
+- **Admin-gated contributing** — adding/publishing an experience requires **contributor access granted by an admin** (users request it; admins approve from the Access Requests panel).
 - **Role-based access control** — Student, Faculty, Placement Coordinator, Admin.
 - **Placement experience editor** with a structured template (company, rounds, questions, preparation, advice...).
 - **Company knowledge base** with dedicated company pages and AI preparation summaries.

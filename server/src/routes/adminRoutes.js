@@ -16,4 +16,8 @@ router.get('/users', requireAuth, requireRole(ROLES.ADMIN), ctrl.listUsers);
 router.patch('/users/:id/role', requireAuth, requireRole(ROLES.ADMIN), ctrl.setRole);
 router.patch('/users/:id/active', requireAuth, requireRole(ROLES.ADMIN), ctrl.setActive);
 
+// Contributor access requests (admin + coordinator).
+router.get('/access-requests', requireAuth, requireRole(ROLES.ADMIN, ROLES.COORDINATOR), ctrl.listAccessRequests);
+router.patch('/users/:id/access', requireAuth, requireRole(ROLES.ADMIN, ROLES.COORDINATOR), ctrl.setAccess);
+
 export default router;

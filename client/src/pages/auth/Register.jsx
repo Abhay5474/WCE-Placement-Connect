@@ -25,7 +25,8 @@ export default function Register() {
   };
 
   return (
-    <AuthShell title="Create your account" subtitle={`Use your @${config.collegeEmailDomain} email`}>
+    <AuthShell title="Create your account" subtitle="Join to read and save experiences — anyone can sign up">
+
       <form onSubmit={submit} className="space-y-3">
         {error && <ErrorNote message={error} />}
         {info && <div className="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{info}</div>}

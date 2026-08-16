@@ -8,7 +8,8 @@ import { SearchHistory } from '../models/tracking.js';
 import { ok, asyncHandler } from '../utils/apiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
 import { paginate, pageMeta } from '../utils/pagination.js';
-import { ALL_ROLES, REPORT_STATUS, BLOG_STATUS, ROLES } from '../config/constants.js';
+import { ALL_ROLES, REPORT_STATUS, BLOG_STATUS, ROLES, NOTIFICATION_TYPES } from '../config/constants.js';
+import { notify } from '../services/notificationService.js';
 
 /* ---- User management ---- */
 export const listUsers = asyncHandler(async (req, res) => {
@@ -29,6 +30,39 @@ export const setRole = asyncHandler(async (req, res) => {
   const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
   if (!user) throw ApiError.notFound('User not found');
   ok(res, { user: user.toPublicJSON() }, 'Role updated');
+});
+
+/* Contributor access management. */
+export const listAccessRequests = asyncHandler(async (req, res) => {
+  const users = await User.find({ 'accessRequest.status': 'pending' })
+    .sort({ 'accessRequest.requestedAt': 1 })
+    .lean();
+  ok(res, users.map((u) => ({ ...u, passwordHash: undefined })));
+});
+
+export const setAccess = asyncHandler(async (req, res) => {
+  const grant = !!req.body.grant;
+  const user = await User.findById(req.params.id);
+  if (!user) throw ApiError.notFound('User not found');
+  user.canContribute = grant;
+  user.accessRequest = {
+    ...(user.accessRequest || {}),
+    status: grant ? 'approved' : 'rejected',
+    decidedAt: new Date(),
+    decidedBy: req.user._id,
+  };
+  await user.save();
+  // Let the user know in real time.
+  await notify({
+    recipient: user._id,
+    type: NOTIFICATION_TYPES.ADMIN_ANNOUNCEMENT,
+    actor: req.user._id,
+    message: grant
+      ? 'Your contributor access was approved — you can now add placement experiences.'
+      : 'Your contributor access request was declined.',
+    link: '/create',
+  }).catch(() => {});
+  ok(res, { user: user.toPublicJSON() }, grant ? 'Access granted' : 'Access revoked');
 });
 
 export const setActive = asyncHandler(async (req, res) => {

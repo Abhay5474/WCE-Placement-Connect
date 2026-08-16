@@ -8,9 +8,11 @@ import BarChart from '../../components/BarChart.jsx';
 export default function Admin() {
   const { user } = useAuth();
   const isAdmin = hasRole(user, 'admin');
+  const canManageAccess = hasRole(user, 'admin', 'coordinator');
   const tabs = [
     { id: 'analytics', label: 'Analytics' },
     { id: 'reports', label: 'Moderation' },
+    ...(canManageAccess ? [{ id: 'access', label: 'Access Requests' }] : []),
     ...(isAdmin ? [{ id: 'users', label: 'Users' }, { id: 'companies', label: 'Companies' }] : []),
   ];
   const [tab, setTab] = useState('analytics');
@@ -28,6 +30,7 @@ export default function Admin() {
       </div>
       {tab === 'analytics' && <Analytics />}
       {tab === 'reports' && <Reports />}
+      {tab === 'access' && canManageAccess && <AccessRequests />}
       {tab === 'users' && isAdmin && <Users />}
       {tab === 'companies' && isAdmin && <CompanyManager />}
     </div>
@@ -78,6 +81,30 @@ function Reports() {
           <div className="mt-3 flex gap-2">
             <button onClick={() => resolve(r._id, 'resolved', 'archive_blog')} className="btn-ghost text-sm text-red-600">Archive content</button>
             <button onClick={() => resolve(r._id, 'dismissed')} className="btn-ghost text-sm">Dismiss</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AccessRequests() {
+  const { data, isLoading, refetch } = useQuery({ queryKey: ['access-requests'], queryFn: () => api.get('/admin/access-requests').then((r) => r.data) });
+  if (isLoading) return <Spinner />;
+  const decide = async (id, grant) => { await api.patch(`/admin/users/${id}/access`, { grant }); refetch(); };
+  if (!data.data.length) return <EmptyState title="No pending requests" subtitle="Users requesting contributor access appear here." />;
+  return (
+    <div className="space-y-3">
+      {data.data.map((u) => (
+        <div key={u._id} className="card flex flex-wrap items-center justify-between gap-3 p-4">
+          <div>
+            <p className="font-semibold text-slate-800">{u.name} <span className="text-xs font-normal text-slate-400">{u.email}</span></p>
+            <p className="text-xs text-slate-500">{u.department || '—'} · requested {new Date(u.accessRequest?.requestedAt).toLocaleDateString()}</p>
+            {u.accessRequest?.message && <p className="mt-1 text-sm text-slate-600">“{u.accessRequest.message}”</p>}
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => decide(u._id, true)} className="btn-primary text-sm">Approve</button>
+            <button onClick={() => decide(u._id, false)} className="btn-ghost text-sm text-red-600">Decline</button>
           </div>
         </div>
       ))}
