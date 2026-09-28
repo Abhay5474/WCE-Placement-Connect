@@ -3,7 +3,7 @@ import Joi from 'joi';
 import * as ctrl from '../controllers/companyController.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
-import { ROLES, DIFFICULTY } from '../config/constants.js';
+import { ROLES } from '../config/constants.js';
 
 const router = Router();
 
@@ -17,7 +17,6 @@ const companyBody = Joi.object({
   requiredSkills: Joi.array().items(Joi.string()),
   placementType: Joi.array().items(Joi.string()),
   eligibility: Joi.string().allow(''),
-  difficulty: Joi.string().valid(...DIFFICULTY),
   averagePreparationTime: Joi.string().allow(''),
   verifiedInformation: Joi.boolean(),
 });

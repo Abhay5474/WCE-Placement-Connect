@@ -5,6 +5,7 @@ import { useBlog } from '../lib/hooks.js';
 import { api, errMessage } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Spinner, EmptyState, AIBadge, TrustBadge } from '../components/ui.jsx';
+import QuestionCard from '../components/QuestionCard.jsx';
 
 export default function BlogDetail() {
   const { slug } = useParams();
@@ -14,6 +15,7 @@ export default function BlogDetail() {
   const [state, setState] = useState({ liked: false, bookmarked: false, likeCount: 0 });
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState('');
+  const [regen, setRegen] = useState(false);
 
   const d = data?.data;
   useEffect(() => {
@@ -27,6 +29,16 @@ export default function BlogDetail() {
   if (!d) return <EmptyState title="Blog not found" />;
   const { blog, ai, interviewQuestions } = d;
   const p = blog.placement || {};
+  // Strip any stray HTML tags from the AI summary so only clean prose shows.
+  const plainSummary = String(ai?.summary || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+  const regenerate = async () => {
+    setRegen(true);
+    try {
+      await api.post(`/ai/blogs/${blog._id}/reprocess`);
+      await qc.invalidateQueries({ queryKey: ['blog', slug] });
+    } catch (e) { alert(errMessage(e)); } finally { setRegen(false); }
+  };
 
   const toggleLike = async () => {
     const { data: r } = await api.post(`/blogs/${blog._id}/like`);
@@ -65,15 +77,11 @@ export default function BlogDetail() {
         <span>· {blog.readingTimeMin} min read · 👁 {blog.views}</span>
       </div>
 
-      {/* AI quick summary */}
-      {ai?.quickSummary && (
+      {/* AI narrative summary (plain text only, no HTML, no field grid) */}
+      {ai?.summary && plainSummary && (
         <div className="mt-5 rounded-xl border border-violet-100 bg-violet-50 p-4">
-          <div className="mb-2 flex items-center gap-2"><span className="font-semibold text-violet-900">Quick summary</span><AIBadge /></div>
-          <div className="grid grid-cols-2 gap-2 text-sm text-slate-700 sm:grid-cols-3">
-            {Object.entries({ Company: ai.quickSummary.company, Role: ai.quickSummary.role, Type: ai.quickSummary.placementType, Rounds: ai.quickSummary.rounds, 'Prep time': ai.quickSummary.preparationTime, Result: ai.quickSummary.result }).map(([k, v]) => (
-              <div key={k}><span className="text-slate-400">{k}: </span>{String(v)}</div>
-            ))}
-          </div>
+          <div className="mb-2 flex items-center gap-2"><span className="font-semibold text-violet-900">AI Summary</span><AIBadge /></div>
+          <p className="text-sm leading-relaxed text-slate-700">{plainSummary}</p>
         </div>
       )}
 
@@ -87,24 +95,29 @@ export default function BlogDetail() {
         </div>
       )}
 
-      <div className="prose prose-slate mt-6 max-w-none" dangerouslySetInnerHTML={{ __html: blog.content }} />
+      <div className="rich-content mt-6" dangerouslySetInnerHTML={{ __html: blog.content }} />
 
       {/* Actions */}
       <div className="mt-6 flex flex-wrap items-center gap-2 border-y border-slate-100 py-3">
         <button onClick={user ? toggleLike : undefined} className={`btn-ghost ${state.liked ? 'text-red-600' : ''}`} disabled={!user}>❤ {state.likeCount}</button>
         <button onClick={user ? toggleBookmark : undefined} className={`btn-ghost ${state.bookmarked ? 'text-brand-600' : ''}`} disabled={!user}>{state.bookmarked ? '★ Saved' : '☆ Save'}</button>
         {user && <button onClick={report} className="btn-ghost text-slate-500">⚑ Report</button>}
-        {user && String(user.id) === String(blog.author?._id) && <Link to={`/edit/${blog._id}`} className="btn-ghost">Edit</Link>}
+        {user && String(user.id) === String(blog.author?._id) && (
+          <>
+            <Link to={`/edit/${blog._id}`} className="btn-ghost">Edit</Link>
+            <button onClick={regenerate} className="btn-ghost text-violet-600" disabled={regen} title="Re-run AI summary & question extraction">
+              {regen ? 'Regenerating…' : '✨ Regenerate AI'}
+            </button>
+          </>
+        )}
       </div>
 
       {interviewQuestions?.length > 0 && (
         <section className="mt-6">
           <h3 className="mb-2 font-bold">Extracted interview questions</h3>
-          <ul className="card divide-y divide-slate-100 text-sm">
-            {interviewQuestions.map((q) => (
-              <li key={q._id} className="flex justify-between p-3"><span>{q.question}</span><span className="text-xs text-slate-400">{q.topic}</span></li>
-            ))}
-          </ul>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {interviewQuestions.map((q) => <QuestionCard key={q._id} q={q} />)}
+          </div>
         </section>
       )}
 

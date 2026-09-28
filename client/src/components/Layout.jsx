@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate, Outlet } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth, hasRole } from '../context/AuthContext.jsx';
-import { api } from '../lib/api.js';
+import { useNotifications } from '../lib/hooks.js';
 import { connectSocket } from '../lib/socket.js';
 
 const NAV = [
@@ -16,16 +17,23 @@ const NAV = [
 export default function Layout() {
   const { user, logout, config } = useAuth();
   const navigate = useNavigate();
-  const [unread, setUnread] = useState(0);
+  const qc = useQueryClient();
   const [menu, setMenu] = useState(false);
+  const [mobileNav, setMobileNav] = useState(false);
+
+  // Shared notifications cache — the bell and the Notifications page read the same
+  // query, so marking read updates the badge instantly with no page reload.
+  const { data: notifData } = useNotifications({ enabled: !!user });
+  const unread = notifData?.meta?.unread || 0;
 
   useEffect(() => {
     if (!user) return;
-    api.get('/notifications', { params: { limit: 1 } }).then(({ data }) => setUnread(data.meta?.unread || 0)).catch(() => {});
     const socket = connectSocket();
-    socket?.on('notification', () => setUnread((u) => u + 1));
-    return () => socket?.off('notification');
-  }, [user]);
+    // On a live push, refetch the shared query → badge + list both update.
+    const onNotify = () => qc.invalidateQueries({ queryKey: ['notifications'] });
+    socket?.on('notification', onNotify);
+    return () => socket?.off('notification', onNotify);
+  }, [user, qc]);
 
   return (
     <div className="min-h-screen">
@@ -89,12 +97,49 @@ export default function Layout() {
               </>
             ) : (
               <>
-                <Link to="/login" className="btn-ghost">Sign in</Link>
-                <Link to="/register" className="btn-primary">Join</Link>
+                <Link to="/login" className="btn-ghost hidden sm:inline-flex">Sign in</Link>
+                <Link to="/register" className="btn-primary hidden sm:inline-flex">Join</Link>
               </>
             )}
+
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileNav((o) => !o)}
+              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 md:hidden"
+              aria-label="Toggle menu"
+            >
+              {mobileNav ? '✕' : '☰'}
+            </button>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileNav && (
+          <nav className="border-t border-slate-100 bg-white px-4 py-2 md:hidden" onClick={() => setMobileNav(false)}>
+            {NAV.map((n) => (
+              <NavLink
+                key={n.to}
+                to={n.to}
+                end={n.end}
+                className={({ isActive }) =>
+                  `block rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100'}`
+                }
+              >
+                {n.label}
+              </NavLink>
+            ))}
+            <div className="mt-2 flex gap-2 border-t border-slate-100 pt-2">
+              {user ? (
+                <Link to="/create" className="btn-primary flex-1 justify-center">✍ Write</Link>
+              ) : (
+                <>
+                  <Link to="/login" className="btn-ghost flex-1 justify-center">Sign in</Link>
+                  <Link to="/register" className="btn-primary flex-1 justify-center">Join</Link>
+                </>
+              )}
+            </div>
+          </nav>
+        )}
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-6">

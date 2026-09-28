@@ -18,7 +18,9 @@ const placementSchema = new Schema(
     company: { type: Schema.Types.ObjectId, ref: 'Company' },
     companyName: { type: String, default: '' }, // denormalized for display/search
     role: { type: String, default: '' },
-    placementType: { type: String, enum: PLACEMENT_TYPES },
+    // No strict enum here so legacy values (e.g. "On Campus") still save; the
+    // allowed set for new/edited content is enforced by the request validator.
+    placementType: { type: String },
     year: { type: Number },
     department: { type: String, default: '' },
     graduationYear: { type: Number },

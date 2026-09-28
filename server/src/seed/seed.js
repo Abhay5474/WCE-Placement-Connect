@@ -6,6 +6,8 @@ import { connectDB, disconnectDB } from '../config/db.js';
 import { User } from '../models/User.js';
 import { Company } from '../models/Company.js';
 import { Blog } from '../models/Blog.js';
+import { InterviewQuestion } from '../models/InterviewQuestion.js';
+import { AIAnalysis } from '../models/AIAnalysis.js';
 import { env } from '../config/env.js';
 import { uniqueSlug } from '../utils/slug.js';
 import { processBlogAI } from '../services/aiPipeline.js';
@@ -42,10 +44,15 @@ async function run() {
   await connectDB();
   logger.warn('Seeding DEMO data — existing demo records will be reset.');
 
+  // Clear ALL prior demo data, including derived AI analysis + extracted questions,
+  // so stale rows (e.g. from an older extractor) don't linger.
+  const demoBlogIds = await Blog.find({ isDemo: true }).distinct('_id');
   await Promise.all([
     User.deleteMany({ isDemo: true }),
     Company.deleteMany({ isDemo: true }),
     Blog.deleteMany({ isDemo: true }),
+    InterviewQuestion.deleteMany({ isDemo: true }),
+    AIAnalysis.deleteMany({ blog: { $in: demoBlogIds } }),
   ]);
 
   const domain = env.collegeEmailDomain;
@@ -83,7 +90,7 @@ async function run() {
       publishedAt: new Date(),
       isDemo: true,
       placement: {
-        company: c._id, companyName: c.name, role, placementType: 'On Campus',
+        company: c._id, companyName: c.name, role, placementType: 'Full Time',
         year: 2026, department: 'CSE', difficulty: c.difficulty,
         skills: c.requiredSkills, preparationDuration: '8 weeks', result: 'Selected',
         rounds: [{ name: 'Online Assessment' }, { name: 'Technical Interview' }, { name: 'HR Interview' }],

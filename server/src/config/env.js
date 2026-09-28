@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config();
+// override:true makes the .env file authoritative, so a stale OS/user environment
+// variable (e.g. a leftover GEMINI_API_KEY) can never shadow the value in .env.
+// In production without a .env file this is a no-op.
+dotenv.config({ override: true });
 
 const bool = (v, def = false) =>
   v === undefined ? def : ['1', 'true', 'yes', 'on'].includes(String(v).toLowerCase());
@@ -12,6 +15,14 @@ export const env = {
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
 
   mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/wceconnect_ai',
+  // Database name applied via the driver, so the URI need not include one.
+  mongoDbName: process.env.MONGO_DB || 'wceconnect_ai',
+  // Optional public DNS servers for Node's resolver. Needed on networks whose
+  // local DNS refuses the SRV lookup that mongodb+srv:// requires.
+  dnsServers: (process.env.DNS_SERVERS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
 
   collegeEmailDomain: (process.env.COLLEGE_EMAIL_DOMAIN || 'walchandcollege.edu.in').toLowerCase(),
   institutionName: process.env.INSTITUTION_NAME || 'Walchand College of Engineering',
@@ -28,12 +39,21 @@ export const env = {
   },
 
   ai: {
+    // Chat/LLM provider: mock | gemini | groq
     provider: (process.env.AI_PROVIDER || 'mock').toLowerCase(),
-    openaiKey: process.env.OPENAI_API_KEY || '',
-    openaiChatModel: process.env.OPENAI_CHAT_MODEL || 'gpt-4o-mini',
-    openaiEmbedModel: process.env.OPENAI_EMBED_MODEL || 'text-embedding-3-small',
+    // Embedding provider (Groq has no embeddings API, so it's resolved separately).
+    // mock | gemini. If blank, auto-picks gemini when a key exists.
+    embedProvider: (process.env.EMBEDDING_PROVIDER || '').toLowerCase(),
     geminiKey: process.env.GEMINI_API_KEY || '',
     geminiChatModel: process.env.GEMINI_CHAT_MODEL || 'gemini-1.5-flash',
+    geminiEmbedModel: process.env.GEMINI_EMBED_MODEL || 'gemini-embedding-001',
+    groqKey: process.env.GROQ_API_KEY || '',
+    groqChatModel: process.env.GROQ_CHAT_MODEL || 'openai/gpt-oss-20b',
+    // Reasoning models (gpt-oss) burn extra tokens "thinking"; 'low' keeps quality
+    // while minimizing token use so the free tier isn't exhausted. Blank to omit.
+    groqReasoningEffort: process.env.GROQ_REASONING_EFFORT ?? 'low',
+    // Hard cap on output tokens per request (safety against runaway usage).
+    groqMaxTokens: parseInt(process.env.GROQ_MAX_TOKENS || '1024', 10),
     rateLimit: parseInt(process.env.AI_RATE_LIMIT || '30', 10),
   },
 

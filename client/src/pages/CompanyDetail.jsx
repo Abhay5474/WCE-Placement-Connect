@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCompany } from '../lib/hooks.js';
 import { api } from '../lib/api.js';
 import BlogCard from '../components/BlogCard.jsx';
+import QuestionCard from '../components/QuestionCard.jsx';
 import { Spinner, EmptyState, AIBadge } from '../components/ui.jsx';
 
 export default function CompanyDetail() {
@@ -30,7 +31,7 @@ export default function CompanyDetail() {
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-slate-900">{company.name}</h1>
-            <p className="text-sm text-slate-500">{company.industry} · Difficulty {company.difficulty}</p>
+            <p className="text-sm text-slate-500">{company.industry || 'Company'}</p>
           </div>
         </div>
         {company.description && <p className="mt-4 text-sm text-slate-600">{company.description}</p>}
@@ -62,13 +63,8 @@ export default function CompanyDetail() {
       <section>
         <h2 className="mb-3 text-lg font-bold">Frequently asked questions</h2>
         {interviewQuestions?.length ? (
-          <div className="card divide-y divide-slate-100">
-            {interviewQuestions.map((q) => (
-              <div key={q._id} className="flex items-center justify-between p-3 text-sm">
-                <span>{q.question}</span>
-                <span className="ml-3 whitespace-nowrap text-xs text-slate-400">{q.topic} · {q.difficulty} · ×{q.frequency}</span>
-              </div>
-            ))}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {interviewQuestions.map((q) => <QuestionCard key={q._id} q={q} />)}
           </div>
         ) : <EmptyState title="No questions extracted yet" />}
       </section>

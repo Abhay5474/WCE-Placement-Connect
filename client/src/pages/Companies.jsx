@@ -31,8 +31,8 @@ export default function Companies() {
                 </div>
               </div>
               <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
-                <span className="badge bg-slate-100 text-slate-600">Difficulty: {c.difficulty}</span>
                 <span>{c.experienceCount} experience(s)</span>
+                {c.averagePreparationTime && <span className="badge bg-slate-100 text-slate-600">Prep: {c.averagePreparationTime}</span>}
               </div>
               {c.verifiedInformation && <span className="badge mt-2 bg-emerald-100 text-emerald-700">✓ Verified info</span>}
             </Link>

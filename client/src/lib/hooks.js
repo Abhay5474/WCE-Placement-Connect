@@ -25,5 +25,10 @@ export const useBlog = (slug) =>
 export const useDashboard = () =>
   useQuery({ queryKey: ['dashboard'], queryFn: () => get('/placement/dashboard') });
 
-export const useNotifications = () =>
-  useQuery({ queryKey: ['notifications'], queryFn: () => get('/notifications') });
+export const useNotifications = (options = {}) =>
+  useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => get('/notifications'),
+    refetchInterval: 60000, // gentle poll so the badge stays fresh
+    ...options,
+  });

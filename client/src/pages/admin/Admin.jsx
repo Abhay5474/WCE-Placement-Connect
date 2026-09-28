@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api.js';
 import { useAuth, hasRole } from '../../context/AuthContext.jsx';
@@ -15,7 +16,9 @@ export default function Admin() {
     ...(canManageAccess ? [{ id: 'access', label: 'Access Requests' }] : []),
     ...(isAdmin ? [{ id: 'users', label: 'Users' }, { id: 'companies', label: 'Companies' }] : []),
   ];
-  const [tab, setTab] = useState('analytics');
+  const [params] = useSearchParams();
+  const initialTab = tabs.find((t) => t.id === params.get('tab'))?.id || 'analytics';
+  const [tab, setTab] = useState(initialTab);
 
   return (
     <div>
@@ -144,22 +147,19 @@ function Users() {
 
 function CompanyManager() {
   const { data, isLoading, refetch } = useQuery({ queryKey: ['admin-companies'], queryFn: () => api.get('/companies', { params: { limit: 50 } }).then((r) => r.data) });
-  const [form, setForm] = useState({ name: '', industry: '', difficulty: 'Medium' });
+  const [form, setForm] = useState({ name: '', industry: '' });
   if (isLoading) return <Spinner />;
-  const create = async (e) => { e.preventDefault(); await api.post('/companies', form); setForm({ name: '', industry: '', difficulty: 'Medium' }); refetch(); };
+  const create = async (e) => { e.preventDefault(); await api.post('/companies', form); setForm({ name: '', industry: '' }); refetch(); };
   return (
     <div className="space-y-4">
       <form onSubmit={create} className="card flex flex-wrap items-end gap-3 p-4">
         <div><label className="label text-xs">Name</label><input className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
         <div><label className="label text-xs">Industry</label><input className="input" value={form.industry} onChange={(e) => setForm({ ...form, industry: e.target.value })} /></div>
-        <div><label className="label text-xs">Difficulty</label>
-          <select className="input" value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>{['Easy', 'Medium', 'Hard'].map((d) => <option key={d}>{d}</option>)}</select>
-        </div>
         <button className="btn-primary">Add company</button>
       </form>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {data.data.map((c) => (
-          <div key={c._id} className="card p-4"><p className="font-semibold">{c.name}</p><p className="text-xs text-slate-500">{c.industry} · {c.difficulty} · {c.experienceCount} exp</p></div>
+          <div key={c._id} className="card p-4"><p className="font-semibold">{c.name}</p><p className="text-xs text-slate-500">{c.industry || 'Company'} · {c.experienceCount} exp</p></div>
         ))}
       </div>
     </div>
