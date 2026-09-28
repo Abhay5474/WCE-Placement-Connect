@@ -31,3 +31,28 @@
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
   }
 }
+
+/* Shared formatting for the editor and rendered blog content (no typography plugin). */
+.rte-content, .rich-content {
+  @apply text-slate-800;
+}
+.rte-content h2, .rich-content h2 {
+  @apply mb-2 mt-4 text-xl font-bold text-slate-900;
+}
+.rte-content h3, .rich-content h3 {
+  @apply mb-1 mt-4 text-base font-bold text-brand-700;
+}
+.rte-content p, .rich-content p {
+  @apply my-2 leading-relaxed;
+}
+.rte-content ul, .rich-content ul {
+  @apply my-2 list-disc space-y-1 pl-6;
+}
+.rte-content ol, .rich-content ol {
+  @apply my-2 list-decimal space-y-1 pl-6;
+}
+.rte-content blockquote, .rich-content blockquote {
+  @apply my-3 border-l-4 border-brand-200 bg-slate-50 py-1 pl-4 italic text-slate-600;
+}
+.rte-content strong, .rich-content strong { @apply font-bold; }
+.rte-content a, .rich-content a { @apply text-brand-600 underline; }

@@ -58,7 +58,7 @@ export const compare = asyncHandler(async (req, res) => {
       const questionCount = await InterviewQuestion.countDocuments({ company: c._id });
       return {
         name: c.name, slug: c.slug, roles: c.roles, requiredSkills: c.requiredSkills,
-        difficulty: c.difficulty, averagePreparationTime: c.averagePreparationTime,
+        averagePreparationTime: c.averagePreparationTime,
         experienceCount, questionCount,
       };
     })

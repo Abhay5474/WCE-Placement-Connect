@@ -37,7 +37,7 @@ export const CATEGORIES = Object.freeze([
   'On-Campus',
 ]);
 
-export const PLACEMENT_TYPES = Object.freeze(['On Campus', 'Off Campus', 'Internship', 'PPO']);
+export const PLACEMENT_TYPES = Object.freeze(['Internship', 'Full Time', 'PPO']);
 export const DIFFICULTY = Object.freeze(['Easy', 'Medium', 'Hard']);
 export const RESULTS = Object.freeze(['Selected', 'Rejected', 'In Process', 'Not Disclosed']);
 
@@ -57,4 +57,5 @@ export const NOTIFICATION_TYPES = Object.freeze({
   BLOG_VERIFIED: 'blog_verified',
   ADMIN_ANNOUNCEMENT: 'admin_announcement',
   PLACEMENT_ANNOUNCEMENT: 'placement_announcement',
+  ACCESS_REQUEST: 'access_request', // student requests contributor access → admins
 });

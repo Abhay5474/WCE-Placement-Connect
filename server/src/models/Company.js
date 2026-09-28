@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { DIFFICULTY } from '../config/constants.js';
 
 const { Schema, model } = mongoose;
 
@@ -15,7 +14,6 @@ const companySchema = new Schema(
     requiredSkills: [{ type: String }],
     placementType: [{ type: String }],
     eligibility: { type: String, default: '' },
-    difficulty: { type: String, enum: DIFFICULTY, default: 'Medium' },
     averagePreparationTime: { type: String, default: '' },
     // Information verified by a placement coordinator/admin.
     verifiedInformation: { type: Boolean, default: false },

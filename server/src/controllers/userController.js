@@ -5,7 +5,8 @@ import { Report } from '../models/Report.js';
 import { ok, created, asyncHandler } from '../utils/apiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
 import { redactAnonymous } from '../services/blogQueryService.js';
-import { BLOG_STATUS } from '../config/constants.js';
+import { notifyMany } from '../services/notificationService.js';
+import { BLOG_STATUS, ROLES, NOTIFICATION_TYPES } from '../config/constants.js';
 
 /* Public author profile + their published blogs. */
 export const authorProfile = asyncHandler(async (req, res) => {
@@ -67,6 +68,21 @@ export const requestAccess = asyncHandler(async (req, res) => {
     requestedAt: new Date(),
   };
   await user.save();
+
+  // Notify admins + coordinators so it shows in their notification tab.
+  const approvers = await User.find({ role: { $in: [ROLES.ADMIN, ROLES.COORDINATOR] }, isActive: true })
+    .select('_id')
+    .lean();
+  await notifyMany(
+    approvers.map((a) => a._id),
+    {
+      type: NOTIFICATION_TYPES.ACCESS_REQUEST,
+      actor: user._id,
+      message: `${user.name} requested contributor access`,
+      link: '/admin?tab=access',
+    }
+  );
+
   ok(res, { user: user.toPublicJSON() }, 'Access request submitted. An admin will review it.');
 });
 
