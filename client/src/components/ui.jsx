@@ -57,3 +57,20 @@ export const SectionHeader = ({ title, subtitle, to, linkLabel = 'View all' }) =
     {to && <Link to={to} className="text-sm font-semibold text-brand-600 hover:underline">{linkLabel} →</Link>}
   </div>
 );
+
+export const BrandLockup = ({ institutionName, className = '', compact = false }) => {
+  const brand = (institutionName || 'WCEConnect').trim();
+  const suffix = brand.toLowerCase().includes('ai') ? '' : ' AI';
+
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
+      <span className={`flex items-center justify-center rounded-lg bg-brand-600 font-bold text-white ${compact ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'}`}>
+        W
+      </span>
+      <span className={`font-extrabold tracking-tight text-slate-900 ${compact ? 'text-base' : 'text-xl'}`}>
+        {brand}
+        <span className="text-brand-600">{suffix}</span>
+      </span>
+    </div>
+  );
+};

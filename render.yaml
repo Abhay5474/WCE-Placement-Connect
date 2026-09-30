@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: wceconnect-ai-server
+    env: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CLIENT_URL
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB
+        value: wceconnect_ai
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: AI_PROVIDER
+        value: mock
+      - key: EMBEDDING_PROVIDER
+        value: mock
+      - key: COLLEGE_EMAIL_DOMAIN
+        value: walchandcollege.edu.in
+      - key: INSTITUTION_NAME
+        value: Walchand College of Engineering

@@ -3,8 +3,44 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-slate-50 text-slate-800 antialiased;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  a {
+    @apply transition-colors;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgba(31, 61, 245, 0.45);
+    outline-offset: 2px;
   }
 }
 
@@ -56,3 +92,39 @@
 }
 .rte-content strong, .rich-content strong { @apply font-bold; }
 .rte-content a, .rich-content a { @apply text-brand-600 underline; }
+
+/* Assistant response formatting */
+.assistant-response h2 {
+  @apply mb-3 mt-5 text-lg font-bold text-slate-900;
+}
+.assistant-response h3 {
+  @apply mb-2 mt-4 text-base font-semibold text-slate-800;
+}
+.assistant-response p {
+  @apply my-2 leading-7 text-slate-700;
+}
+.assistant-response ul {
+  @apply my-3 list-disc space-y-2 pl-6 text-slate-700;
+}
+.assistant-response ol {
+  @apply my-3 list-decimal space-y-2 pl-6 text-slate-700;
+}
+.assistant-response li {
+  @apply leading-7;
+}
+.assistant-response blockquote {
+  @apply my-4 rounded-lg border-l-4 border-brand-200 bg-brand-50 px-4 py-3 text-slate-700;
+}
+.assistant-response strong {
+  @apply font-semibold text-slate-900;
+}
+.assistant-response code {
+  @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.8rem] text-brand-700;
+}
+.assistant-table th,
+.assistant-table td {
+  @apply border-slate-100;
+}
+.assistant-table th {
+  @apply text-sm tracking-wide;
+}

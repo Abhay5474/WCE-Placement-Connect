@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useNavigate, Outlet } from 'react-router-dom';
+import { Link, NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth, hasRole } from '../context/AuthContext.jsx';
 import { useNotifications } from '../lib/hooks.js';
 import { connectSocket } from '../lib/socket.js';
+import { BrandLockup } from './ui.jsx';
 
 const NAV = [
   { to: '/', label: 'Home', end: true },
@@ -17,6 +18,7 @@ const NAV = [
 export default function Layout() {
   const { user, logout, config } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const qc = useQueryClient();
   const [menu, setMenu] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
@@ -35,13 +37,20 @@ export default function Layout() {
     return () => socket?.off('notification', onNotify);
   }, [user, qc]);
 
+  useEffect(() => {
+    setMenu(false);
+    setMobileNav(false);
+  }, [location.pathname]);
+
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
-          <Link to="/" className="flex items-center gap-2 font-extrabold text-slate-900">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">W</span>
-            <span className="hidden sm:block">WCEConnect <span className="text-brand-600">AI</span></span>
+          <Link to="/" className="hidden sm:block">
+            <BrandLockup institutionName={config.institutionName} compact />
+          </Link>
+          <Link to="/" className="sm:hidden">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">W</span>
           </Link>
 
           <nav className="hidden flex-1 items-center gap-1 md:flex">
@@ -72,7 +81,12 @@ export default function Layout() {
                   )}
                 </Link>
                 <div className="relative">
-                  <button onClick={() => setMenu((m) => !m)} className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-bold text-brand-700">
+                  <button
+                    onClick={() => setMenu((m) => !m)}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-bold text-brand-700"
+                    aria-label="Toggle user menu"
+                    aria-expanded={menu}
+                  >
                     {user.name?.[0]?.toUpperCase()}
                   </button>
                   {menu && (
@@ -88,7 +102,11 @@ export default function Layout() {
                       <MenuLink to="/saved">Saved Blogs</MenuLink>
                       <MenuLink to="/analytics">My Analytics</MenuLink>
                       {hasRole(user, 'admin', 'coordinator', 'faculty') && <MenuLink to="/admin">Admin / Moderation</MenuLink>}
-                      <button onClick={() => { logout(); navigate('/'); }} className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50">
+                      <button
+                        type="button"
+                        onClick={() => { logout(); navigate('/'); }}
+                        className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                      >
                         Sign out
                       </button>
                     </div>
@@ -107,6 +125,7 @@ export default function Layout() {
               onClick={() => setMobileNav((o) => !o)}
               className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 md:hidden"
               aria-label="Toggle menu"
+              aria-expanded={mobileNav}
             >
               {mobileNav ? '✕' : '☰'}
             </button>
@@ -147,7 +166,7 @@ export default function Layout() {
       </main>
 
       <footer className="mt-12 border-t border-slate-200 bg-white py-6 text-center text-sm text-slate-400">
-        {config.institutionName} · WCEConnect AI — placement knowledge platform ·{' '}
+        {config.institutionName || 'WCEConnect AI'} — placement knowledge platform ·{' '}
         <span className="text-slate-500">@{config.collegeEmailDomain}</span>
       </footer>
     </div>

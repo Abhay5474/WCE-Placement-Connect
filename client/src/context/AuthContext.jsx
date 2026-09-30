@@ -2,11 +2,19 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import { api, setAccessToken } from '../lib/api.js';
 
 const AuthContext = createContext(null);
+const DEFAULT_INSTITUTION_NAME = 'WCEConnect AI';
+
+const normalizeInstitutionName = (institutionName) => {
+  const value = (institutionName || '').trim();
+  if (!value) return DEFAULT_INSTITUTION_NAME;
+  if (/^walchand college of engineering(\s+ai)?$/i.test(value)) return DEFAULT_INSTITUTION_NAME;
+  return value;
+};
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [config, setConfig] = useState({ institutionName: 'WCEConnect AI', collegeEmailDomain: '' });
+  const [config, setConfig] = useState({ institutionName: DEFAULT_INSTITUTION_NAME, collegeEmailDomain: '' });
 
   const loadMe = useCallback(async () => {
     try {
@@ -20,7 +28,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    api.get('/config').then(({ data }) => setConfig(data.data)).catch(() => {});
+    api.get('/config').then(({ data }) => setConfig({
+      ...data.data,
+      institutionName: normalizeInstitutionName(data.data.institutionName),
+    })).catch(() => {});
     if (localStorage.getItem('accessToken')) loadMe();
     else setLoading(false);
   }, [loadMe]);

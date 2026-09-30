@@ -1,14 +1,12 @@
 import { useAuth } from '../../context/AuthContext.jsx';
+import { BrandLockup } from '../../components/ui.jsx';
 
 export default function AuthShell({ title, subtitle, children }) {
   const { config } = useAuth();
   return (
     <div className="mx-auto grid max-w-4xl gap-8 py-8 md:grid-cols-2 md:items-center">
       <div className="hidden md:block">
-        <div className="mb-3 flex items-center gap-2 text-2xl font-extrabold text-slate-900">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white">W</span>
-          WCEConnect <span className="text-brand-600">AI</span>
-        </div>
+        <BrandLockup institutionName={config.institutionName} className="mb-4" />
         <p className="text-lg font-semibold text-slate-800">Your college's placement knowledge, searchable forever.</p>
         <ul className="mt-4 space-y-2 text-sm text-slate-500">
           <li>✓ Real interview experiences from seniors</li>
