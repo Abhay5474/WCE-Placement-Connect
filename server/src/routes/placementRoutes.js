@@ -16,14 +16,14 @@ router.put(
   requireAuth,
   validate({
     body: Joi.object({
-      branch: Joi.string().allow(''),
-      year: Joi.number().integer().min(1).max(5),
-      skills: Joi.array().items(Joi.string()),
-      targetRoles: Joi.array().items(Joi.string()),
+      branch: Joi.string().trim().min(1).required(),
+      year: Joi.number().integer().valid(1, 2, 3, 4).required(),
+      skills: Joi.array().items(Joi.string().trim().min(1)).min(1).required(),
+      targetRoles: Joi.array().items(Joi.string().trim().min(1)).min(1).required(),
       targetCompanies: Joi.array().items(Joi.string().hex().length(24)),
       preparationProgress: Joi.array().items(Joi.object({ topic: Joi.string(), completed: Joi.number().min(0).max(100) })),
       savedResources: Joi.array().items(Joi.object({ label: Joi.string(), url: Joi.string().uri() })),
-    }).min(1),
+    }).required(),
   }),
   ctrl.updateProfile
 );

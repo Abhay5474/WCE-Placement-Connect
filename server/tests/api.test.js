@@ -148,6 +148,31 @@ describe('Placement blog + AI', () => {
   });
 });
 
+describe('Placement profile validation', () => {
+  test('requires branch, year, skills and target roles and rejects year 5', async () => {
+    if (!dbAvailable) return;
+
+    const authRes = await agent().post('/api/v1/auth/register').send({
+      name: 'Placement Tester', email: 'placement.tester@walchandcollege.edu.in', password: 'Password123', department: 'CSE', year: 3,
+    });
+    expect(authRes.status).toBe(201);
+
+    const placementToken = authRes.body.data.accessToken;
+
+    const invalidRes = await agent()
+      .put('/api/v1/placement/profile')
+      .set('Authorization', `Bearer ${placementToken}`)
+      .send({ branch: '', year: 5, skills: [], targetRoles: [] });
+    expect(invalidRes.status).toBe(400);
+
+    const validRes = await agent()
+      .put('/api/v1/placement/profile')
+      .set('Authorization', `Bearer ${placementToken}`)
+      .send({ branch: 'CSE', year: 4, skills: ['DSA', 'System Design'], targetRoles: ['Software Engineer'] });
+    expect(validRes.status).toBe(200);
+  });
+});
+
 describe('Security', () => {
   test('blocks unauthenticated blog creation', async () => {
     if (!dbAvailable) return;

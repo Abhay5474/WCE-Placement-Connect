@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { api, errMessage } from '../lib/api.js';
 import { Spinner, ErrorNote } from '../components/ui.jsx';
 
+const YEAR_OPTIONS = [1, 2, 3, 4];
+
 export default function PlacementProfile() {
   const [profile, setProfile] = useState(null);
   const [saved, setSaved] = useState(false);
@@ -19,12 +21,32 @@ export default function PlacementProfile() {
   if (!profile) return <Spinner />;
   const set = (patch) => { setProfile((p) => ({ ...p, ...patch })); setSaved(false); };
 
+  const isValidProfile = () => {
+    const branch = profile.branch.trim();
+    const year = Number(profile.year);
+    const skills = profile.skills.map((s) => s.trim()).filter(Boolean);
+    const targetRoles = profile.targetRoles.map((s) => s.trim()).filter(Boolean);
+    return Boolean(branch && YEAR_OPTIONS.includes(year) && skills.length && targetRoles.length);
+  };
+
   const save = async () => {
+    const branch = profile.branch.trim();
+    const year = Number(profile.year);
+    const skills = profile.skills.map((s) => s.trim()).filter(Boolean);
+    const targetRoles = profile.targetRoles.map((s) => s.trim()).filter(Boolean);
+
     setError('');
+    if (!branch || !YEAR_OPTIONS.includes(year) || !skills.length || !targetRoles.length) {
+      setError('Please fill in branch, select year 1-4, add at least one skill, and add at least one target role.');
+      return;
+    }
+
     try {
       await api.put('/placement/profile', {
-        branch: profile.branch, year: profile.year ? Number(profile.year) : undefined,
-        skills: profile.skills, targetRoles: profile.targetRoles,
+        branch,
+        year,
+        skills,
+        targetRoles,
       });
       setSaved(true);
     } catch (e) { setError(errMessage(e)); }
@@ -41,10 +63,11 @@ export default function PlacementProfile() {
 
       <div className="card space-y-4 p-6">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="label">Branch</label><input className="input" value={profile.branch} onChange={(e) => set({ branch: e.target.value })} /></div>
+          <div><label className="label">Branch</label><input required className="input" value={profile.branch} onChange={(e) => set({ branch: e.target.value })} /></div>
           <div><label className="label">Year</label>
-            <select className="input" value={profile.year || ''} onChange={(e) => set({ year: e.target.value })}>
-              <option value="">—</option>{[1, 2, 3, 4, 5].map((y) => <option key={y}>{y}</option>)}
+            <select required className="input" value={profile.year || ''} onChange={(e) => set({ year: e.target.value })}>
+              <option value="">Select year</option>
+              {YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}</option>)}
             </select>
           </div>
         </div>
@@ -54,7 +77,7 @@ export default function PlacementProfile() {
         <ChipEditor label="Target roles" items={profile.targetRoles} value={roleInput} setValue={setRoleInput}
           onAdd={() => addChip('targetRoles', roleInput, setRoleInput)} onRemove={(s) => set({ targetRoles: profile.targetRoles.filter((x) => x !== s) })} />
 
-        <button onClick={save} className="btn-primary">Save profile</button>
+        <button onClick={save} className="btn-primary" disabled={!isValidProfile()} title="Complete all required fields to save">Save profile</button>
       </div>
     </div>
   );

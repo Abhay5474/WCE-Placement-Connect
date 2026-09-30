@@ -59,6 +59,34 @@ npm run dev                   # http://localhost:5173
 
 Requires Node 18+ and a MongoDB instance (local or Atlas). Atlas is recommended for vector search; the app falls back to in-memory cosine similarity for local dev.
 
+## 🌍 Deployment
+
+### Backend on Render
+
+Deploy the `server/` app as a Render Web Service using the included [render.yaml](render.yaml). Set these production values in Render:
+
+| Var | Value |
+|-----|-------|
+| `CLIENT_URL` | Your Vercel frontend URL, for example `https://wceconnect-ai.vercel.app` |
+| `MONGO_URI` | Your MongoDB Atlas connection string |
+| `JWT_ACCESS_SECRET` | Strong random secret |
+| `JWT_REFRESH_SECRET` | Strong random secret |
+| `AI_PROVIDER` | `mock`, `gemini`, or `groq` |
+| `EMBEDDING_PROVIDER` | `mock` or `gemini` |
+
+The Render service listens on `PORT` automatically and exposes `/health` for the health check.
+
+### Frontend on Vercel
+
+Deploy the `client/` app on Vercel with the included [client/vercel.json](client/vercel.json). Set these environment variables in Vercel:
+
+| Var | Value |
+|-----|-------|
+| `VITE_API_URL` | Your Render backend URL plus `/api/v1`, for example `https://wceconnect-ai-server.onrender.com/api/v1` |
+| `VITE_SOCKET_URL` | Your Render backend URL, for example `https://wceconnect-ai-server.onrender.com` |
+
+After both deployments are live, confirm the backend `CLIENT_URL` points to the Vercel domain so auth cookies and Socket.IO CORS work correctly.
+
 ## 🔑 Environment variables
 
 See [`server/.env.example`](server/.env.example) and [`client/.env.example`](client/.env.example). Key ones:

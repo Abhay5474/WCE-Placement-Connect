@@ -6,7 +6,7 @@ import { ErrorNote } from '../../components/ui.jsx';
 import AuthShell from './AuthShell.jsx';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, config } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
@@ -23,7 +23,7 @@ export default function Login() {
   };
 
   return (
-    <AuthShell title="Welcome back" subtitle="Sign in to your WCEConnect AI account">
+    <AuthShell title="Welcome back" subtitle={`Sign in to your ${config.institutionName || 'WCEConnect AI'} account`}>
       <form onSubmit={submit} className="space-y-4">
         {error && <ErrorNote message={error} />}
         <div>

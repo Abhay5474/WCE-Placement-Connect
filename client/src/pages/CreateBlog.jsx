@@ -146,7 +146,7 @@ export default function CreateBlog() {
         {restored && (
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
             <span>📝 We restored your unsaved draft.</span>
-            <button onClick={discardDraft} className="font-semibold text-amber-700 underline">Discard &amp; start fresh</button>
+            <button type="button" onClick={discardDraft} className="font-semibold text-amber-700 underline">Discard &amp; start fresh</button>
           </div>
         )}
 
@@ -178,7 +178,7 @@ export default function CreateBlog() {
           </div>
 
           {(!form.content || form.content === '<br>') && (
-            <button onClick={() => set({ content: PLACEMENT_TEMPLATE })} className="btn-ghost text-sm">↳ Insert structured template</button>
+            <button type="button" onClick={() => set({ content: PLACEMENT_TEMPLATE })} className="btn-ghost text-sm">↳ Insert structured template</button>
           )}
 
           <RichTextEditor
@@ -195,7 +195,7 @@ export default function CreateBlog() {
           <div>
             <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
               <label className="label mb-0">Categories</label>
-              <button onClick={suggestCategories} disabled={plainLen < 10 || suggesting}
+              <button type="button" onClick={suggestCategories} disabled={plainLen < 10 || suggesting}
                 className="text-xs font-semibold text-violet-600 disabled:text-slate-300">
                 {suggesting ? 'Analyzing…' : '✨ Suggest from my experience'}
               </button>
@@ -203,7 +203,7 @@ export default function CreateBlog() {
             {categoryOptions.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {categoryOptions.map((c) => (
-                  <button key={c} onClick={() => toggleCat(c)}
+                  <button type="button" key={c} onClick={() => toggleCat(c)}
                     className={`rounded-full border px-3 py-1 text-xs ${form.categories.includes(c) ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-600'}`}>{c}</button>
                 ))}
               </div>
@@ -220,8 +220,8 @@ export default function CreateBlog() {
           </label>
 
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => save('draft')} className="btn-ghost" disabled={busy || !form.title}>Save draft</button>
-            <button onClick={() => save('published')} className="btn-primary" disabled={busy || !form.title || plainLen < 10}>Publish</button>
+            <button type="button" onClick={() => save('draft')} className="btn-ghost" disabled={busy || !form.title}>Save draft</button>
+            <button type="button" onClick={() => save('published')} className="btn-primary" disabled={busy || !form.title || plainLen < 10}>Publish</button>
           </div>
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function CreateBlog() {
       <aside className="space-y-4">
         <div className="card p-4">
           <div className="mb-2 flex items-center gap-2"><h3 className="font-bold">Writing Assistant</h3><AIBadge /></div>
-          <button onClick={analyze} className="btn-primary w-full text-sm" disabled={plainLen < 10}>Analyze draft</button>
+          <button type="button" onClick={analyze} className="btn-primary w-full text-sm" disabled={plainLen < 10}>Analyze draft</button>
 
           {moderation?.hasPII && (
             <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
@@ -249,14 +249,14 @@ export default function CreateBlog() {
                 <p className="font-semibold text-slate-700">Suggested tags</p>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {ai.tags.map((t) => (
-                    <button key={t} onClick={() => !form.tags.includes(t) && set({ tags: [...form.tags, t] })} className="rounded bg-slate-100 px-2 py-0.5 text-xs hover:bg-brand-100">+ {t}</button>
+                    <button type="button" key={t} onClick={() => !form.tags.includes(t) && set({ tags: [...form.tags, t] })} className="rounded bg-slate-100 px-2 py-0.5 text-xs hover:bg-brand-100">+ {t}</button>
                   ))}
                 </div>
               </div>
               <div>
                 <p className="font-semibold text-slate-700">Title ideas</p>
                 <ul className="mt-1 space-y-1">
-                  {ai.titles.map((t) => <li key={t}><button onClick={() => set({ title: t })} className="text-left text-xs text-brand-600 hover:underline">{t}</button></li>)}
+                  {ai.titles.map((t) => <li key={t}><button type="button" onClick={() => set({ title: t })} className="text-left text-xs text-brand-600 hover:underline">{t}</button></li>)}
                 </ul>
               </div>
               <div>
@@ -279,7 +279,7 @@ export default function CreateBlog() {
             <div className="flex flex-wrap gap-1">
               {form.tags.map((t) => (
                 <span key={t} className="badge bg-brand-100 text-brand-700">#{t}
-                  <button onClick={() => set({ tags: form.tags.filter((x) => x !== t) })} className="ml-1">×</button>
+                  <button type="button" onClick={() => set({ tags: form.tags.filter((x) => x !== t) })} className="ml-1">×</button>
                 </span>
               ))}
             </div>
