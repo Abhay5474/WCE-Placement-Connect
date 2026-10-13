@@ -167,7 +167,7 @@ export default function Layout() {
 
       <footer className="mt-12 border-t border-slate-200 bg-white py-6 text-center text-sm text-slate-400">
         {config.institutionName || 'WCEConnect AI'} — placement knowledge platform ·{' '}
-        <span className="text-slate-500">@{config.collegeEmailDomain}</span>
+        <span className="text-slate-500"></span>
       </footer>
     </div>
   );
