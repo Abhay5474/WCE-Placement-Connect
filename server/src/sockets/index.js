@@ -5,11 +5,22 @@ import { logger } from '../utils/logger.js';
 
 let io = null;
 
+const normalizeOrigin = (value = '') => String(value).trim().replace(/\/+$/, '').toLowerCase();
+const allowedOrigins = new Set((env.clientUrls || [env.clientUrl]).map(normalizeOrigin));
+
 /* Socket.IO for real-time notifications. Each authenticated user joins a room
    keyed by their id so the server can push targeted notifications. */
 export function initSockets(server) {
   io = new Server(server, {
-    cors: { origin: env.clientUrl, credentials: true },
+    cors: {
+      origin(origin, callback) {
+        if (!origin) return callback(null, true);
+        const normalizedOrigin = normalizeOrigin(origin);
+        if (allowedOrigins.has(normalizedOrigin)) return callback(null, true);
+        callback(new Error(`Origin ${origin} not allowed by Socket.IO CORS`));
+      },
+      credentials: true,
+    },
   });
 
   io.use((socket, next) => {

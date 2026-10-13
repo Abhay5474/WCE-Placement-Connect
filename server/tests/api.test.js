@@ -23,7 +23,7 @@ beforeAll(async () => {
   }
   process.env.MONGO_URI = mongod.getUri();
   process.env.NODE_ENV = 'test';
-  process.env.COLLEGE_EMAIL_DOMAIN = 'walchandcollege.edu.in';
+  process.env.COLLEGE_EMAIL_DOMAIN = 'walchandsangli.ac.in';
   process.env.AI_PROVIDER = 'mock';
   await mongoose.connect(process.env.MONGO_URI);
   const mod = await import('../src/app.js');
@@ -57,7 +57,7 @@ describe('Auth', () => {
   test('registers a user and returns a token', async () => {
     if (!dbAvailable) return;
     const res = await agent().post('/api/v1/auth/register').send({
-      name: 'Test Student', email: 'test.student@walchandcollege.edu.in', password: 'Password123', department: 'CSE', year: 4,
+      name: 'Test Student', email: 'test.student@walchandsangli.ac.in', password: 'Password123', department: 'CSE', year: 4,
     });
     expect(res.status).toBe(201);
     expect(res.body.data.accessToken).toBeTruthy();
@@ -79,7 +79,7 @@ describe('Contributor access gating', () => {
     if (!dbAvailable) return;
     const { User } = await import('../src/models/User.js');
     // Simulate admin approval directly on the model (endpoint is admin-only).
-    await User.updateOne({ email: 'test.student@walchandcollege.edu.in' }, { canContribute: true });
+    await User.updateOne({ email: 'test.student@walchandsangli.ac.in' }, { canContribute: true });
   });
 });
 
@@ -153,7 +153,7 @@ describe('Placement profile validation', () => {
     if (!dbAvailable) return;
 
     const authRes = await agent().post('/api/v1/auth/register').send({
-      name: 'Placement Tester', email: 'placement.tester@walchandcollege.edu.in', password: 'Password123', department: 'CSE', year: 3,
+      name: 'Placement Tester', email: 'placement.tester@walchandsangli.ac.in', password: 'Password123', department: 'CSE', year: 3,
     });
     expect(authRes.status).toBe(201);
 

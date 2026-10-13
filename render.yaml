@@ -28,6 +28,6 @@ services:
       - key: EMBEDDING_PROVIDER
         value: mock
       - key: COLLEGE_EMAIL_DOMAIN
-        value: walchandcollege.edu.in
+        value: walchandsangli.ac.in
       - key: INSTITUTION_NAME
         value: Walchand College of Engineering
