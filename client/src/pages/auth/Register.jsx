@@ -37,7 +37,7 @@ export default function Register() {
         <div>
           <label className="label">College email</label>
           <input className="input" type="email" required value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder={`you@${config.collegeEmailDomain}`} />
+            onChange={(e) => setForm({ ...form, email: e.target.value })} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
