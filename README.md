@@ -67,7 +67,7 @@ Deploy the `server/` app as a Render Web Service using the included [render.yaml
 
 | Var | Value |
 |-----|-------|
-| `CLIENT_URL` | Your Vercel frontend URL, for example `https://wceconnect-ai.vercel.app` |
+| `CLIENT_URL` | `https://wce-placement-connect-client.vercel.app` |
 | `MONGO_URI` | Your MongoDB Atlas connection string |
 | `JWT_ACCESS_SECRET` | Strong random secret |
 | `JWT_REFRESH_SECRET` | Strong random secret |
@@ -82,8 +82,8 @@ Deploy the `client/` app on Vercel with the included [client/vercel.json](client
 
 | Var | Value |
 |-----|-------|
-| `VITE_API_URL` | Your Render backend URL plus `/api/v1`, for example `https://wceconnect-ai-server.onrender.com/api/v1` |
-| `VITE_SOCKET_URL` | Your Render backend URL, for example `https://wceconnect-ai-server.onrender.com` |
+| `VITE_API_URL` | `https://wce-placement-connect.onrender.com/api/v1` |
+| `VITE_SOCKET_URL` | `https://wce-placement-connect.onrender.com` |
 
 After both deployments are live, confirm the backend `CLIENT_URL` points to the Vercel domain so auth cookies and Socket.IO CORS work correctly.
 

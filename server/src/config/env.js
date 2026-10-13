@@ -7,12 +7,21 @@ dotenv.config({ override: true });
 const bool = (v, def = false) =>
   v === undefined ? def : ['1', 'true', 'yes', 'on'].includes(String(v).toLowerCase());
 
+const normalizeOrigin = (value = '') =>
+  String(value).trim().replace(/\/+$/, '').replace(/\/$/, '').toLowerCase();
+
+const clientUrls = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((url) => normalizeOrigin(url))
+  .filter(Boolean);
+
 export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   isProd: process.env.NODE_ENV === 'production',
   isTest: process.env.NODE_ENV === 'test',
   port: parseInt(process.env.PORT || '5000', 10),
-  clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  clientUrl: clientUrls[0] || 'http://localhost:5173',
+  clientUrls,
 
   mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/wceconnect_ai',
   // Database name applied via the driver, so the URI need not include one.
@@ -24,7 +33,7 @@ export const env = {
     .map((s) => s.trim())
     .filter(Boolean),
 
-  collegeEmailDomain: (process.env.COLLEGE_EMAIL_DOMAIN || 'walchandcollege.edu.in').toLowerCase(),
+  collegeEmailDomain: (process.env.COLLEGE_EMAIL_DOMAIN || 'walchandsangli.ac.in').toLowerCase(),
   institutionName: process.env.INSTITUTION_NAME || 'Walchand College of Engineering',
   requireEmailVerification: bool(process.env.REQUIRE_EMAIL_VERIFICATION, false),
   // When false (default) any email domain may register. Reading is public;

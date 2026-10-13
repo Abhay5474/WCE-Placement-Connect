@@ -11,15 +11,25 @@ import { env } from './config/env.js';
 import { notFoundHandler, errorHandler } from './middleware/error.js';
 import routes from './routes/index.js';
 
+const normalizeOrigin = (value = '') => String(value).trim().replace(/\/+$/, '').toLowerCase();
+
 export function createApp() {
   const app = express();
+  const allowedOrigins = new Set((env.clientUrls || [env.clientUrl]).map(normalizeOrigin));
 
   app.set('trust proxy', 1);
   app.use(helmet());
   app.use(
     cors({
-      origin: env.clientUrl,
+      origin(origin, callback) {
+        if (!origin) return callback(null, true);
+        const normalizedOrigin = normalizeOrigin(origin);
+        if (allowedOrigins.has(normalizedOrigin)) return callback(null, true);
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      },
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     })
   );
   app.use(express.json({ limit: '2mb' }));
